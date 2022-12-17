@@ -3,17 +3,31 @@
 \author{Ahmed Ashraf Mohamed \\ 2103134}
 \date{}
 \usepackage[
-    left= 1in,
-    right=1in,
-    top=1in,
-    bottom = 1in]{geometry}
+    left= .5in,
+    right=.5in,
+    top=.5in,
+    bottom = .5in
+    ]{geometry}
     \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{amsmath}
 \begin{document}
 \maketitle
 \section{Introduction}
 \subsection{Definition of ACO}
 Ant algorithms are population-based approach to several problems, ant algorithms have been inspired by the behavior of real ant colonies, specifically their foraging behavior. The main idea of ant algorithms is the indirect communication of a colony of agents, artificial ants, based on pheromone trails.
+
+\subsection{Advantages}
+\begin{itemize}
+    \item ACO has relatively simple implementation
+    \item Efficient for TSP and similar problems
+    \item Guaranteed convergence
+\end{itemize}
+\subsubsection{Disadvantages}
+\begin{itemize}
+    \item The time of convergence is uncertain.
+\end{itemize}
+
 \subsection{ACO applications}
 \begin{enumerate}
     \item Traveling salesman
@@ -44,16 +58,32 @@ After all ants have constructed a tour, the pheromones are updated. This is done
     \EndProcedure
 \end{algorithmic}
 
-\textit{Tour construction. } In ACS (Ant colony system) ants choose the next city using the \textit{pseudo-random-proportional action choice rule: } when located at city \(i\), ant \(k\) moves, with probability \(q_0\), to city \(l\) for which \(\tau_{il}(t)\) is maximal, that is, with probability \(q_0\) the best possible move as indicted by the pheromone trails.
+\section{Ant system}
 
-\textit{Global pheromone trail update. } In ACS (Ant colony System) only the global best ant is allowed to add pheromone after each iteration. Thus, the update according to
+\subsection{Introduction}
+Initially, three variants of Ant System were proposed; these were called \textit{ant-density}, \textit{ant-quantity}, and \textit{ant-cycle}. In \textit{ant-density} and \textit{ant-quantity} the ants update the pheromone directly after a move from a city to an adjacent one, in \textit{ant-cycle} the pheromone update was only done after all the ants had constructed the tours and the amount of pheromone deposited by each ant was set to be a function of the tour quality. \text{ant-cycle} performed much better than the other two variants, hence it's the main method that is going to be used, being referred to as Ant system.
+
+\subsection{Steps}
+In AS each \(n\) (artificial) ants builds a solution, i.e. tour, of the TSP, In AS no local search is applied
+
+\textit{Tour construction. } Initially, each ant is put on some random city. At each construction step, an ant \(k\) applies a probabilistic action choice rule. particularly, the probability with which ank \(k\), currently at city \(i\), chooses to go to city \(j\) at the \(t\)th iteration of the algorithm is:
 \begin{equation}
-    \tau_{ij}(t +1) = (1 - \rho) \cdot \tau_{ij}(t) + \rho \cdot \Delta \tau^{gb}_{ij}(t)
+    p_{ij}^{k} (t) = \frac{\left[\tau_{ij}(t)^{\alpha}\right] \cdot \left[\eta_{ij}\right]^{\beta}}{\sum_{l \in \mathcal{N}^{k}_{i}} \left[\tau_{il}(t)\right]^{\alpha} \cdot \left[\eta_{il}\right]^{\beta}} \qquad \text{ if } j \in \mathcal{N}^k_i
 \end{equation}
 
-\textit{Local pheromone trail update. } Additionally to the global updating rule, in ACS (Ant Colony System) the ants use a local update rule that they apply immediately after having crossed an arch during the tour construction:
-\begin{equation}
-    \tau_{ij} = (1 - \xi) \cdot \tau_{ij} + \xi \cdot \tau_0
-\end{equation}
+Where \(\eta_{ij} = \frac{1}{d_{ij}}\) is a heuristic value, \(\alpha\) and \(\beta\) are two parameters which determine the relative influence of the pheromone trail and the heuristic information, and \(\mathcal{N}^k_i\) is the feasible neighborhoods of ant \(k\), that is the set of cities which ant \(k\) has not yet visited.
 
+\textit{Pheromone update } AFter all ants have constructed their tours, the pheromone trails are updated. This is done by lowering the pheromone strength on \textbf{all} arcs by a constant factor and the the allow each ant to add pheromone on the arcs it has visited:
+\begin{equation}
+    \tau_{ij}(t+1) = (1- \rho) \cdot \tau_{ij}(t) + \sum^{m}_{k =1} \Delta \tau^k_{ij} (t)
+\end{equation}
+where \(0 < \rho \le 1\) is the pheromone trail evaporation parameter. The parameter \(\rho\) is used to avoid unlimited accumulation of the pheromone trails and it enables the algorithm to "forget" previously done bad decisions.
+\(\Delta^k_{ij}(t)\) is the amount of pheromone ant \(k\) puts on teh arcs it has visited; it is defined as follows:
+\begin{equation} \label{eq-3}
+    \Delta \tau^k_{ij}(t) = \begin{cases}
+        \dfrac{1}{L^k (t)} & \text{ if arc } (i,j) \text{ is used by ant } k \\
+        0                  & \text{otherwise}
+    \end{cases}
+\end{equation}
+Where \(L^k(t)\) is the length of the \(k\)th ant's tour, By \ref{eq-3}, the better the ant's tour is, the more pheromone is received by arcs belonging to the tour. In general, arcs which are used by many ants and which are contained in shorter tours will receive more pheromone and therefore are slo more likely to be chosen in future iteration of the algorithm.
 \end{document}
